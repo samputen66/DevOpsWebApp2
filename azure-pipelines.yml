@@ -79,11 +79,12 @@ stages:
                     else
                       echo "Resource Group already exists."
                     fi
-                    az appservice plan create --name $(resourceGroupPlanName) \
+
+                    az appservice plan create --name $(appServicePlanName) \
                                               --resource-group $(resourceGroupName) \
                                               --sku $(appServiceSku)
                     az webapp create --resource-group $(resourceGroupName) \
-                                    --plan $(resourceGroupPlanName) \
+                                    --plan $(appServicePlanName) \
                                     --name devops-web-app \
                                     --runtime "DOTNETCORE|8.0"
               
