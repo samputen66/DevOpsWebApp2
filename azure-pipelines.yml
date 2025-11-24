@@ -10,6 +10,10 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  resourceGroupName: 'devops-web-app-rg'
+  resourceGroupLoc: 'southeastasia'
+  appServicePlanName: 'devops-web-app-plan'
+  appServiceSku: 'F1'
 
 stages:
   - stage: 'Build'
@@ -66,13 +70,20 @@ stages:
                   scriptType: 'bash'
                   scriptLocation: 'inlineScript'
                   inlineScript: |
-                    az group create --name devops-web-app-rg \
-                                    --location southeastasia
-                    az appservice plan create --name devops-web-app-plan \
-                                              --resource-group devops-web-app-rg \
-                                              --sku F1
-                    az webapp create --resource-group devops-web-app-rg \
-                                    --plan devops-web-app-plan \
+                    # Check if Resource Group exists
+                    echo "Checking if Resource Group exists..."
+                    if ! az group exists --name $(resourceGroupName); then
+                      echo "Resource Group does not exist. Creating Resource Group..."
+                      az group create --name $(resourceGroupName) \
+                                      --location $(resourceGroupLoc)
+                    else
+                      echo "Resource Group already exists."
+                    fi
+                    az appservice plan create --name $(resourceGroupPlanName) \
+                                              --resource-group $(resourceGroupName) \
+                                              --sku $(appServiceSku)
+                    az webapp create --resource-group $(resourceGroupName) \
+                                    --plan $(resourceGroupPlanName) \
                                     --name devops-web-app \
                                     --runtime "DOTNETCORE|8.0"
               
