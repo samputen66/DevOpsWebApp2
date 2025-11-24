@@ -60,12 +60,15 @@ stages:
               steps:
               - download: current
                 artifact: drop
-              - task: AzureWebApp@1
-                displayName: 'Azure App Service Deploy: dev website'
+              - task: AzureCLI@2
                 inputs:
                   azureSubscription: 'azureserviceconn'
-                  appType: 'webApp'
-                  appName: '$(WebAppNameDev)'
-                  package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
-                  deploymentMethod: 'auto'
+                  scriptType: 'bash'
+                  scriptLocation: 'inlineScript'
+                  inlineScript: |
+                    az group create --name my-resource-group --location southeastasia
+                    az webapp create --resource-group devops-web-app-rg \
+                                    --plan F1 \
+                                    --name devops-web-app \
+                                    --runtime "DOTNETCORE|8.0"
               
