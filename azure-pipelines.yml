@@ -7,8 +7,9 @@ trigger:
 - master
 
 pool:
-  vmImage: 'windows-latest'
-
+    name: 'Azure Pipelines'
+    vmImage: 'windows-latest'
+  
 variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
