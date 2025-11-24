@@ -10,10 +10,6 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  resourceGroupName: 'devops-web-app-rg'
-  resourceGroupLoc: 'southeastasia'
-  appServicePlanName: 'devops-web-app-plan'
-  appServiceSku: 'F1'
 
 stages:
   - stage: 'Build'
@@ -65,11 +61,18 @@ stages:
               - download: current
                 artifact: drop
               - task: AzureCLI@2
+                displayName: "Create or Update Resource Group, App Service Plan, and Web App"
                 inputs:
-                  azureSubscription: 'contososerviceconnection'
+                  azureSubscription: 'contososerviceconnection'  # Ensure this is a valid service connection
                   scriptType: 'bash'
                   scriptLocation: 'inlineScript'
                   inlineScript: |
+                    # Define variables
+                    resourceGroupName="devops-web-app-rg"
+                    resourceGroupLoc="southeastasia"
+                    appServicePlanName="devops-web-app-plan"
+                    appServiceSku="F1"
+
                     # Check if Resource Group exists
                     echo "Checking if Resource Group exists..."
                     RG_EXISTS=$(az group exists --name "$resourceGroupName")
@@ -80,12 +83,29 @@ stages:
                     else
                       echo "Resource Group already exists."
                     fi
-                    
-                    az appservice plan create --name $(appServicePlanName) \
-                                              --resource-group $(resourceGroupName) \
-                                              --sku $(appServiceSku)
-                    az webapp create --resource-group $(resourceGroupName) \
-                                    --plan $(appServicePlanName) \
-                                    --name devops-web-app \
-                                    --runtime "DOTNETCORE|8.0"
-              
+
+                    # Check if App Service Plan exists
+                    echo "Checking if App Service Plan exists..."
+                    PLAN_EXISTS=$(az appservice plan show --name "$appServicePlanName" --resource-group "$resourceGroupName" --query "name" -o tsv || echo "false")
+                    if [ "$PLAN_EXISTS" = "false" ]; then
+                      echo "App Service Plan does not exist. Creating App Service Plan..."
+                      az appservice plan create --name "$appServicePlanName" \
+                                                --resource-group "$resourceGroupName" \
+                                                --sku "$appServiceSku" \
+                                                --is-linux false
+                    else
+                      echo "App Service Plan already exists."
+                    fi
+
+                    # Check if Web App exists
+                    echo "Checking if Web App exists..."
+                    WEBAPP_EXISTS=$(az webapp show --name "devops-web-app" --resource-group "$resourceGroupName" --query "name" -o tsv || echo "false")
+                    if [ "$WEBAPP_EXISTS" = "false" ]; then
+                      echo "Web App does not exist. Creating Web App..."
+                      az webapp create --resource-group "$resourceGroupName" \
+                                      --plan "$appServicePlanName" \
+                                      --name "devops-web-app" \
+                                      --runtime "DOTNETCORE|8.0"
+                    else
+                      echo "Web App already exists."
+                    fi
