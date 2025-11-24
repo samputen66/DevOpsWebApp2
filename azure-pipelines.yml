@@ -72,14 +72,15 @@ stages:
                   inlineScript: |
                     # Check if Resource Group exists
                     echo "Checking if Resource Group exists..."
-                    if ! az group exists --name $(resourceGroupName); then
+                    RG_EXISTS=$(az group exists --name "$resourceGroupName")
+                    if [ "$RG_EXISTS" = "false" ]; then
                       echo "Resource Group does not exist. Creating Resource Group..."
-                      az group create --name $(resourceGroupName) \
-                                      --location $(resourceGroupLoc)
+                      az group create --name "$resourceGroupName" \
+                                      --location "$resourceGroupLoc"
                     else
                       echo "Resource Group already exists."
                     fi
-
+                    
                     az appservice plan create --name $(appServicePlanName) \
                                               --resource-group $(resourceGroupName) \
                                               --sku $(appServiceSku)
