@@ -86,7 +86,8 @@ stages:
 
                     # Check if App Service Plan exists
                     echo "Checking if App Service Plan exists..."
-                    PLAN_EXISTS=$(az appservice plan show --name "$appServicePlanName" --resource-group "$resourceGroupName" --query "name" -o tsv || echo "false")
+                    PLAN_EXISTS=$(az appservice plan show --name "$appServicePlanName" --resource-group "$resourceGroupName" \
+                                  --query "name" -o tsv 2>/dev/null || echo "false")
                     if [ "$PLAN_EXISTS" = "false" ]; then
                       echo "App Service Plan does not exist. Creating App Service Plan..."
                       az appservice plan create --name "$appServicePlanName" \
