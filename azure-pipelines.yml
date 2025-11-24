@@ -18,7 +18,7 @@ stages:
       - job:  'Build'
         displayName: 'Build job'
         pool:
-          vmImage: 'window-latest'
+          vmImage: 'windows-latest'
         steps:
         - task: DotNetCoreCLI@2
           displayName: 'Restore project dependencies'
