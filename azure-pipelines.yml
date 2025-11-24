@@ -66,9 +66,13 @@ stages:
                   scriptType: 'bash'
                   scriptLocation: 'inlineScript'
                   inlineScript: |
-                    az group create --name my-resource-group --location southeastasia
+                    az group create --name devops-web-app-rg \
+                                    --location southeastasia
+                    az appservice plan create --name devops-web-app-plan \
+                                              --resource-group devops-web-app-rg \
+                                              --sku F1
                     az webapp create --resource-group devops-web-app-rg \
-                                    --plan F1 \
+                                    --plan devops-web-app-plan \
                                     --name devops-web-app \
                                     --runtime "DOTNETCORE|8.0"
               
