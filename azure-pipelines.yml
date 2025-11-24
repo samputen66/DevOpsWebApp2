@@ -92,8 +92,7 @@ stages:
                       echo "App Service Plan does not exist. Creating App Service Plan..."
                       az appservice plan create --name "$appServicePlanName" \
                                                 --resource-group "$resourceGroupName" \
-                                                --sku "$appServiceSku" \
-                                                --is-linux false
+                                                --sku "$appServiceSku"
                     else
                       echo "App Service Plan already exists."
                     fi
