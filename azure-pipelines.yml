@@ -63,7 +63,7 @@ stages:
               - task: AzureCLI@2
                 displayName: "Create or Update Resource Group, App Service Plan, and Web App"
                 inputs:
-                  azureSubscription: 'contososerviceconnection'  # Ensure this is a valid service connection
+                  azureSubscription: 'azureserviceconn'
                   scriptType: 'bash'
                   scriptLocation: 'inlineScript'
                   inlineScript: |
@@ -110,3 +110,10 @@ stages:
                     else
                       echo "Web App already exists."
                     fi
+              - task: AzureRmWebAppDeployment@5
+                inputs:
+                  ConnectionType: 'AzureRM'
+                  azureSubscription: 'azureserviceconn'
+                  appType: 'webApp'
+                  WebAppName: 'devopswebapp2-dev'
+                  packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
