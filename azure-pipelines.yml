@@ -72,8 +72,8 @@ stages:
                     resourceGroupLoc='southeastasia'
                     appServicePlanName='devops-web-app-plan'
                     appServiceSku='F1'
-                    applicationName='devopswebapp2-dev'
-
+                    appName='devopswebapp2-dev'
+                    
                     # Check if Resource Group exists
                     echo 'Checking if Resource Group exists...'
                     RG_EXISTS=$(az group exists --name '$resourceGroupName')
@@ -100,13 +100,13 @@ stages:
 
                     # Check if Web App exists
                     echo 'Checking if Web App exists...'
-                    WEBAPP_EXISTS=$(az webapp show --name '$applicationName' --resource-group '$resourceGroupName' \
+                    WEBAPP_EXISTS=$(az webapp show --name '$(appName)' --resource-group '$resourceGroupName' \
                                     --query 'name' -o tsv 2>/dev/null || echo 'false')
                     if [ '$WEBAPP_EXISTS' = 'false' ]; then
                       echo 'Web App does not exist. Creating Web App...'
                       az webapp create --resource-group '$resourceGroupName' \
                                       --plan '$appServicePlanName' \
-                                      --name '$applicationName' \
+                                      --name '$(appName)' \
                                       --runtime 'dotnet:8'
                     else
                       echo 'Web App already exists.'
@@ -117,7 +117,7 @@ stages:
                   ConnectionType: 'AzureRM'
                   azureSubscription: 'azureserviceconn'
                   appType: 'webApp'
-                  WebAppName: '$applicationName'
+                  WebAppName: '$(appName)'
                   packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
 
   - stage: 'Staging'
