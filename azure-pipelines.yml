@@ -107,7 +107,7 @@ stages:
                                       --plan "$appServicePlanName" \
                                       --name "devopswebapp2-dev" \
                                       --runtime "dotnet:8" \
-                                      --location "southeast"
+                                      --location "southeastasia"
                     else
                       echo "Web App already exists."
                     fi
