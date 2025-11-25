@@ -70,7 +70,6 @@ stages:
                   package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
                   resourceGroupName: '$(rgName)'
 
-
   - stage: 'Staging'
     displayName: 'Deploy to staging environment'
     dependsOn: Dev
@@ -95,3 +94,8 @@ stages:
                 appName: '$(webAppNameStaging)'
                 package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
                 resourceGroupName: '$(rgName)'
+  
+  - stage: 'Production'
+    displayName: 'Deploy to production environment in deployment slot'
+    dependsOn: Staging
+    
