@@ -72,7 +72,6 @@ stages:
                     resourceGroupLoc="southeastasia"
                     appServicePlanName="devops-web-app-plan"
                     appServiceSku="F1"
-                    webAppName = "devopswebapp2"
 
                     # Check if Resource Group exists
                     echo "Checking if Resource Group exists..."
@@ -100,13 +99,13 @@ stages:
 
                     # Check if Web App exists
                     echo "Checking if Web App exists..."
-                    WEBAPP_EXISTS=$(az webapp show --name "$webAppName" --resource-group "$resourceGroupName" \
+                    WEBAPP_EXISTS=$(az webapp show --name "devopswebapp2" --resource-group "$resourceGroupName" \
                                     --query "name" -o tsv 2>/dev/null || echo "false")
                     if [ "$WEBAPP_EXISTS" = "false" ]; then
                       echo "Web App does not exist. Creating Web App..."
                       az webapp create --resource-group "$resourceGroupName" \
                                       --plan "$appServicePlanName" \
-                                      --name "$webAppName" \
+                                      --name "devopswebapp2" \
                                       --runtime "DOTNETCORE|8.0"
                     else
                       echo "Web App already exists."
