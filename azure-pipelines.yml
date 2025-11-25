@@ -106,7 +106,7 @@ stages:
                       az webapp create --resource-group "$resourceGroupName" \
                                       --plan "$appServicePlanName" \
                                       --name "devopswebapp2-dev" \
-                                      --runtime "DOTNETCORE|8.0"
+                                      --runtime "dotnet:8"
                     else
                       echo "Web App already exists."
                     fi
