@@ -116,4 +116,4 @@ stages:
                   azureSubscription: 'azureserviceconn'
                   appType: 'webApp'
                   WebAppName: 'devopswebapp2-dev'
-                  packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+                  packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
