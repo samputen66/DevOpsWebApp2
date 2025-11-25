@@ -44,7 +44,7 @@ stages:
           artifact: drop
 
   - stage: 'Dev'
-    displayName: 'Deploy to the dev environment'
+    displayName: 'Deploy to dev environment'
     dependsOn: Build
     condition:  succeeded()
     jobs:
@@ -61,59 +61,61 @@ stages:
               - download: current
                 artifact: drop
               - task: AzureCLI@2
-                displayName: "Create or Update Resource Group, App Service Plan, and Web App"
+                displayName: 'Create or Update Resource Group, App Service Plan and Web App in Azure'
                 inputs:
                   azureSubscription: 'azureserviceconn'
                   scriptType: 'bash'
                   scriptLocation: 'inlineScript'
                   inlineScript: |
                     # Define variables
-                    resourceGroupName="devops-web-app-rg"
-                    resourceGroupLoc="southeastasia"
-                    appServicePlanName="devops-web-app-plan"
-                    appServiceSku="F1"
+                    resourceGroupName='devops-web-app-rg'
+                    resourceGroupLoc='southeastasia'
+                    appServicePlanName='devops-web-app-plan'
+                    appServiceSku='F1'
+                    applicationName='devopswebapp2-dev'
 
                     # Check if Resource Group exists
-                    echo "Checking if Resource Group exists..."
-                    RG_EXISTS=$(az group exists --name "$resourceGroupName")
-                    if [ "$RG_EXISTS" = "false" ]; then
-                      echo "Resource Group does not exist. Creating Resource Group..."
-                      az group create --name "$resourceGroupName" \
-                                      --location "$resourceGroupLoc"
+                    echo 'Checking if Resource Group exists...'
+                    RG_EXISTS=$(az group exists --name '$resourceGroupName')
+                    if [ '$RG_EXISTS' = 'false' ]; then
+                      echo 'Resource Group does not exist. Creating Resource Group...'
+                      az group create --name '$resourceGroupName' \
+                                      --location '$resourceGroupLoc'
                     else
-                      echo "Resource Group already exists."
+                      echo 'Resource Group already exists.'
                     fi
 
                     # Check if App Service Plan exists
-                    echo "Checking if App Service Plan exists..."
-                    PLAN_EXISTS=$(az appservice plan show --name "$appServicePlanName" --resource-group "$resourceGroupName" \
-                                  --query "name" -o tsv 2>/dev/null || echo "false")
-                    if [ "$PLAN_EXISTS" = "false" ]; then
-                      echo "App Service Plan does not exist. Creating App Service Plan..."
-                      az appservice plan create --name "$appServicePlanName" \
-                                                --resource-group "$resourceGroupName" \
-                                                --sku "$appServiceSku"
+                    echo 'Checking if App Service Plan exists...'
+                    PLAN_EXISTS=$(az appservice plan show --name '$appServicePlanName' --resource-group '$resourceGroupName' \
+                                  --query 'name' -o tsv 2>/dev/null || echo 'false')
+                    if [ '$PLAN_EXISTS' = 'false' ]; then
+                      echo 'App Service Plan does not exist. Creating App Service Plan...'
+                      az appservice plan create --name '$appServicePlanName' \
+                                                --resource-group '$resourceGroupName' \
+                                                --sku '$appServiceSku'
                     else
-                      echo "App Service Plan already exists."
+                      echo 'App Service Plan already exists.'
                     fi
 
                     # Check if Web App exists
-                    echo "Checking if Web App exists..."
-                    WEBAPP_EXISTS=$(az webapp show --name "devopswebapp2-dev" --resource-group "$resourceGroupName" \
-                                    --query "name" -o tsv 2>/dev/null || echo "false")
-                    if [ "$WEBAPP_EXISTS" = "false" ]; then
-                      echo "Web App does not exist. Creating Web App..."
-                      az webapp create --resource-group "$resourceGroupName" \
-                                      --plan "$appServicePlanName" \
-                                      --name "devopswebapp2-dev" \
-                                      --runtime "dotnet:8"
+                    echo 'Checking if Web App exists...'
+                    WEBAPP_EXISTS=$(az webapp show --name '$applicationName' --resource-group '$resourceGroupName' \
+                                    --query 'name' -o tsv 2>/dev/null || echo 'false')
+                    if [ '$WEBAPP_EXISTS' = 'false' ]; then
+                      echo 'Web App does not exist. Creating Web App...'
+                      az webapp create --resource-group '$resourceGroupName' \
+                                      --plan '$appServicePlanName' \
+                                      --name '$applicationName' \
+                                      --runtime 'dotnet:8'
                     else
-                      echo "Web App already exists."
+                      echo 'Web App already exists.'
                     fi
               - task: AzureRmWebAppDeployment@5
+                displayName: 'Deploy web application artifact'
                 inputs:
                   ConnectionType: 'AzureRM'
                   azureSubscription: 'azureserviceconn'
                   appType: 'webApp'
-                  WebAppName: 'devopswebapp2-dev'
+                  WebAppName: '$applicationName'
                   packageForLinux: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
