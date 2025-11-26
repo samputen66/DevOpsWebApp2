@@ -48,7 +48,7 @@ stages:
     dependsOn: Build
     condition:  succeeded()
     jobs:
-      - deployment: Deploy
+      - deployment: DevDeployment
         pool:
           vmImage: 'windows-latest'
         environment: dev
@@ -74,7 +74,7 @@ stages:
     displayName: 'Deploy to staging environment'
     dependsOn: Dev
     jobs:
-    - deployment: Deploy
+    - deployment: StagingDeployment
       pool:
         vmImage: 'windows-latest'
       environment: staging
@@ -98,4 +98,28 @@ stages:
   - stage: 'Production'
     displayName: 'Deploy to production environment in deployment slot'
     dependsOn: Staging
-    
+    jobs:
+      - deployment: ProdDeployment
+        pool:
+          vmImage: 'windows-latest'
+        environment: production
+        variables:
+          - group: 'Release'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: drop
+
+                - task: AzureWebApp@1
+                  displayName: 'Azure App Service Deploy: prod website with deployment slot'
+                  inputs:
+                    azureSubscription: 'azureserviceconn'
+                    appType: 'webApp'
+                    appName:  '$(webAppProd)'
+                    deployToSlotOrASE: true
+                    resourceGroupName: '$(rgName)'
+                    slotName: 'staging'
+                    package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+                  
